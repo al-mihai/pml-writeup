@@ -1,0 +1,73 @@
+# Prediction Assignment Writeup - Quantifying the Weight Lifting Exercise Activity
+`r opts_chunk$set(cache=TRUE)`
+`r opts_chunk$set(warning=FALSE)`
+## Synopsis
+
+Human Activity Recognition - HAR has emerged as a key research activity in the recent years, but the emphasis was more on "how much" than "how well" a certain activity was done. 
+
+Using data from the Weight Lifting Exercise Dataset of the HAR project [1] we apply machine learning techniques to predict with a high accuracy the correctness of the exercise execution.
+
+## Data Processing
+
+The data is read in data.frame structures as it can be seen below:
+
+```{r loadingData}
+pmlte<-read.table("pml-testing.csv", dec=".", fill=TRUE, quote="\"", 
+                 row.names=NULL,
+                 header=TRUE, sep=",")
+pmltr<-read.table("pml-training.csv", dec=".", fill=TRUE, quote="\"", 
+                  row.names=NULL,
+                  header=TRUE, sep=",")
+```
+
+An exploratory approach of the data is taken, in order to gain more insight into the judicious choice of the features to be considered.
+
+If we calculate the variance of all the features (the columns), we can see that many of them are "NA" or close to 0. We choose to ignore them and build a new dataset with a limited number of features - those that 'matter'/can potentially influence the prediction outcome.
+
+```{r filteringSignificatColumns}
+apply(pmltr,2,var)
+data<-subset(pmltr, select=c("roll_belt", "pitch_belt","yaw_belt","total_accel_belt",
+"accel_belt_x","accel_belt_y","accel_belt_z", "magnet_belt_x","magnet_belt_y",
+"magnet_belt_z","roll_arm","pitch_arm","yaw_arm","total_accel_arm","gyros_arm_x",
+"accel_arm_x","accel_arm_y","accel_arm_z","magnet_arm_x","magnet_arm_y","magnet_arm_z",
+"roll_dumbbell","pitch_dumbbell","yaw_dumbbell","total_accel_dumbbell","gyros_dumbbell_x",
+"gyros_dumbbell_z","accel_dumbbell_x","accel_dumbbell_y","accel_dumbbell_z",
+"magnet_dumbbell_x","magnet_dumbbell_y","magnet_dumbbell_z","roll_forearm","pitch_forearm",
+"yaw_forearm","total_accel_forearm","gyros_forearm_y","gyros_forearm_z","accel_forearm_x",
+"accel_forearm_y","accel_forearm_z","magnet_forearm_x","magnet_forearm_y","magnet_forearm_z",
+"classe"))
+```
+
+The total computation time for the training part will be decreased by this limitation of the number of the features.
+
+We create 'training' and 'testing' datasets with this data.
+
+```{r createDataPartitions}
+library(caret)
+intrain<-createDataPartition(y=data$classe, p=0.75,list=FALSE)
+training<-data[intrain,]
+testing<-data[-intrain,]
+```
+
+We choose a "random forest" machine learning algorithm because we have a classification problem with many of parameters and this choice could have a good accuracy from the first try.
+
+The 'testing' dataset will be used for cross-validation, after building the model.
+
+For prefromance reasons, the 'randomForest' library was used, as it can be seen below.
+
+```{r prediction}
+library("randomForest")
+library("doParallel")
+registerDoParallel(cores=detectCores())
+modrf<-randomForest(classe ~ ., data = training)
+prf<-predict(modrf,newdata=testing)
+```
+
+## Results
+We obtain an overall accuracy of 99.5%. The "random forest" approach gives a very good result for this problem.
+
+```{r results}
+confusionMatrix(prf, testing$classe)
+```
+
+**[1]**Ugulino, W.; Cardador, D.; Vega, K.; Velloso, E.; Milidiu, R.; Fuks, H. *Wearable Computing: Accelerometers' Data Classification of Body Postures and Movements*. Proceedings of 21st Brazilian Symposium on Artificial Intelligence. Advances in Artificial Intelligence - SBIA 2012. In: Lecture Notes in Computer Science. , pp. 52-61. Curitiba, PR: Springer Berlin / Heidelberg, 2012. ISBN 978-3-642-34458-9. DOI: 10.1007/978-3-642-34459-6_6.
