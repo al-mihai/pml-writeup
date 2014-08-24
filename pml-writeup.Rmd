@@ -53,7 +53,7 @@ We choose a "random forest" machine learning algorithm because we have a classif
 
 The 'testing' dataset will be used for cross-validation, after building the model.
 
-For prefromance reasons, the 'randomForest' library was used, as it can be seen below.
+For performance reasons, the 'randomForest' library was used, as it can be seen below.
 
 ```{r prediction}
 library("randomForest")
@@ -70,4 +70,4 @@ We obtain an overall accuracy of 99.5%. The "random forest" approach gives a ver
 confusionMatrix(prf, testing$classe)
 ```
 
-**[1]**Ugulino, W.; Cardador, D.; Vega, K.; Velloso, E.; Milidiu, R.; Fuks, H. *Wearable Computing: Accelerometers' Data Classification of Body Postures and Movements*. Proceedings of 21st Brazilian Symposium on Artificial Intelligence. Advances in Artificial Intelligence - SBIA 2012. In: Lecture Notes in Computer Science. , pp. 52-61. Curitiba, PR: Springer Berlin / Heidelberg, 2012. ISBN 978-3-642-34458-9. DOI: 10.1007/978-3-642-34459-6_6.
+[1] Ugulino, W.; Cardador, D.; Vega, K.; Velloso, E.; Milidiu, R.; Fuks, H. *Wearable Computing: Accelerometers' Data Classification of Body Postures and Movements*. Proceedings of 21st Brazilian Symposium on Artificial Intelligence. Advances in Artificial Intelligence - SBIA 2012. In: Lecture Notes in Computer Science. , pp. 52-61. Curitiba, PR: Springer Berlin / Heidelberg, 2012. ISBN 978-3-642-34458-9. DOI: 10.1007/978-3-642-34459-6_6.
